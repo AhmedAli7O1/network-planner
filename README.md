@@ -3,7 +3,8 @@
 A modern web application for planning and visualizing IP address space, built with React, TypeScript, Vite, and shadcn/ui.
 
 ## Demo
-https://ahmedali7o1.github.io/network-planner/
+
+[Live Demo](https://ahmedali7o1.github.io/network-planner/)
 
 ## Features
 

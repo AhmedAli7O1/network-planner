@@ -16,7 +16,7 @@ import type { NetworkSegmentPlan, BaseNetwork } from '@/lib/subnet-utils';
 import { NetworkVisualization } from './NetworkVisualization';
 import { PRESET_TEMPLATES } from '@/lib/presets';
 import type { PresetTemplate } from '@/lib/presets';
-import { X, FolderOpen } from 'lucide-react';
+import { X, FolderOpen, Upload } from 'lucide-react';
 
 // Local storage keys
 const STORAGE_KEYS = {
@@ -273,6 +273,7 @@ export function NetworkPlanner() {
       if (newNetworkSegment) {
         const optimizedNetworkSegment: NetworkSegmentPlan = {
           ...newNetworkSegment,
+          id: segment.id, // Preserve the original ID
           name: segment.name,
           description: segment.description
         };
@@ -286,6 +287,79 @@ export function NetworkPlanner() {
     console.log('Optimized network segments:', optimizedNetworkSegments.map(s => `${s.name}: ${s.cidr}`));
     setNetworkSegments(optimizedNetworkSegments);
     setErrors([]);
+  };
+
+  const importConfiguration = async () => {
+    try {
+      // Try to use File System Access API for file picker (modern browsers)
+      if ('showOpenFilePicker' in window) {
+        try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const [fileHandle] = await (window as Window & { showOpenFilePicker: any }).showOpenFilePicker({
+            types: [{
+              description: 'JSON Configuration File',
+              accept: { 'application/json': ['.json'] }
+            }],
+            multiple: false
+          });
+          
+          const file = await fileHandle.getFile();
+          const content = await file.text();
+          const config = JSON.parse(content);
+          
+          // Validate the imported configuration
+          if (config.baseNetwork && Array.isArray(config.networkSegments)) {
+            setBaseNetwork(config.baseNetwork);
+            setNetworkSegments(config.networkSegments);
+            setErrors([]);
+          } else {
+            setErrors(['Invalid configuration file format']);
+          }
+        } catch {
+          // User cancelled or API failed
+          return;
+        }
+      } else {
+        // Fallback for older browsers - create a hidden file input
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json,application/json';
+        input.style.display = 'none';
+        
+        input.onchange = (event) => {
+          const target = event.target as HTMLInputElement;
+          const file = target.files?.[0];
+          
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              try {
+                const content = e.target?.result as string;
+                const config = JSON.parse(content);
+                
+                // Validate the imported configuration
+                if (config.baseNetwork && Array.isArray(config.networkSegments)) {
+                  setBaseNetwork(config.baseNetwork);
+                  setNetworkSegments(config.networkSegments);
+                  setErrors([]);
+                } else {
+                  setErrors(['Invalid configuration file format']);
+                }
+                             } catch {
+                 setErrors(['Failed to parse configuration file']);
+               }
+            };
+            reader.readAsText(file);
+          }
+        };
+        
+        document.body.appendChild(input);
+        input.click();
+        document.body.removeChild(input);
+      }
+         } catch {
+       setErrors(['Failed to import configuration']);
+     }
   };
 
   if (isLoading) {
@@ -603,42 +677,93 @@ export function NetworkPlanner() {
           {/* Network Visualization */}
           <NetworkVisualization baseNetwork={baseNetwork} networkSegments={networkSegments} />
 
-          {/* Validation and Actions */}
-          <div className="flex gap-4">
-            <Button onClick={validateNetworkSegments} variant="outline">
-              Validate Configuration
-            </Button>
-            <Button 
-              onClick={optimizeLayout}
-              variant="outline"
-              disabled={networkSegments.length === 0}
-            >
-              Optimize Layout
-            </Button>
-            <Button 
-              onClick={() => {
-                if (validateNetworkSegments()) {
-                  // Export or save configuration
-                  const config = {
-                    baseNetwork,
-                    networkSegments,
-                    timestamp: new Date().toISOString()
-                  };
-                  console.log('Valid configuration:', config);
-                  alert('Configuration is valid! Check console for export.');
-                }
-              }}
-            >
-              Export Configuration
-            </Button>
-            <Button 
-              onClick={resetConfiguration}
-              variant="outline"
-              className="text-destructive hover:text-destructive"
-            >
-              Reset All
-            </Button>
-          </div>
+                     {/* Validation and Actions */}
+           <div className="flex gap-4">
+             <Button onClick={validateNetworkSegments} variant="outline">
+               Validate Configuration
+             </Button>
+             <Button 
+               onClick={optimizeLayout}
+               variant="outline"
+               disabled={networkSegments.length === 0}
+             >
+               Optimize Layout
+             </Button>
+             <Button 
+               onClick={importConfiguration}
+               variant="outline"
+               className="flex items-center gap-2"
+             >
+               <Upload className="h-4 w-4" />
+               Import Configuration
+             </Button>
+             <Button 
+               onClick={async () => {
+                 if (validateNetworkSegments()) {
+                   // Export configuration as JSON file
+                   const config = {
+                     baseNetwork,
+                     networkSegments,
+                     timestamp: new Date().toISOString()
+                   };
+                   
+                   // Create a more descriptive filename
+                   const dateStr = new Date().toISOString().split('T')[0];
+                   const timeStr = new Date().toTimeString().split(' ')[0].replace(/:/g, '-');
+                   const filename = `ip-network-config-${dateStr}-${timeStr}.json`;
+                   
+                   const jsonString = JSON.stringify(config, null, 2);
+                   const blob = new Blob([jsonString], { type: 'application/json' });
+                   
+                   // Try to use File System Access API for save dialog (modern browsers)
+                   if ('showSaveFilePicker' in window) {
+                     try {
+                       // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                       const handle = await (window as Window & { showSaveFilePicker: any }).showSaveFilePicker({
+                         suggestedName: filename,
+                         types: [{
+                           description: 'JSON Configuration File',
+                           accept: { 'application/json': ['.json'] }
+                         }]
+                       });
+                       const writable = await handle.createWritable();
+                       await writable.write(jsonString);
+                       await writable.close();
+                     } catch {
+                       // Fallback to traditional download if user cancels or API fails
+                       const url = URL.createObjectURL(blob);
+                       const link = document.createElement('a');
+                       link.href = url;
+                       link.download = filename;
+                       document.body.appendChild(link);
+                       link.click();
+                       document.body.removeChild(link);
+                       URL.revokeObjectURL(url);
+                     }
+                   } else {
+                     // Fallback for older browsers
+                     const url = URL.createObjectURL(blob);
+                     const link = document.createElement('a');
+                     link.href = url;
+                     link.download = filename;
+                     document.body.appendChild(link);
+                     link.click();
+                     document.body.removeChild(link);
+                     URL.revokeObjectURL(url);
+                   }
+                 }
+               }}
+             >
+               Export Configuration
+             </Button>
+             <Button 
+               onClick={resetConfiguration}
+               variant="outline"
+               className="text-destructive hover:text-destructive"
+             >
+               Reset All
+             </Button>
+           </div>
         </div>
       </div>
     </div>
