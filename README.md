@@ -93,6 +93,26 @@ ip-network-planner/
 - **subnet-utils**: Core IP networking calculations and utilities
 - **presets**: Predefined network templates
 
+## Deployment
+
+This project is configured to automatically deploy to GitHub Pages when changes are pushed to the main branch.
+
+### GitHub Pages Deployment
+
+The app is automatically deployed to GitHub Pages using GitHub Actions. The deployment workflow:
+
+1. Builds the project using `npm run build`
+2. Deploys the built files to GitHub Pages
+3. Makes the app available at `https://[username].github.io/network-planner/`
+
+### Manual Deployment
+
+To deploy manually:
+
+1. Build the project: `npm run build`
+2. The built files will be in the `dist/` directory
+3. Deploy the contents of `dist/` to your web server
+
 ## Contributing
 
 1. Fork the repository
