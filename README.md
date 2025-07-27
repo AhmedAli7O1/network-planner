@@ -1,27 +1,24 @@
-# IP Network Planner Tool
+# IP Network Planner
 
-A modern web application for planning and visualizing network subnets, built with React, TypeScript, Vite, and shadcn/ui.
+A modern web application for planning and visualizing IP address space, built with React, TypeScript, Vite, and shadcn/ui.
 
 ## Features
 
-- **Base Network Configuration**: Define your VPC base network (e.g., 10.0.0.0/16)
-- **Subnet Planning**: Plan multiple subnets within your base network without conflicts
-- **Conflict Detection**: Automatic validation to prevent overlapping subnets
-- **Visual Network Layout**: Visual representation of subnet allocation within the base network
-- **Quick Start Templates**: Pre-configured templates for common cloud scenarios (AWS, GCP, multi-environment)
-- **Real-time Validation**: Instant feedback on subnet configuration validity
-- **Export Configuration**: Export your subnet plan for use in cloud infrastructure
-- **Modern UI**: Clean, responsive interface built with shadcn/ui components
-- **TypeScript**: Full type safety and better development experience
+- **IP Network Planning**: Plan multiple network segments within your base network without conflicts
+- **Conflict Detection**: Automatic validation to prevent overlapping network segments
+- **Visual Network Layout**: Visual representation of network segment allocation within the base network
+- **Template System**: Quick-start templates for common cloud networking patterns
+- **Real-time Validation**: Instant feedback on network configuration validity
+- **Export Configuration**: Export your network plan for use in cloud infrastructure
 
 ## Tech Stack
 
-- **React 18** - UI framework
-- **TypeScript** - Type safety
-- **Vite** - Fast build tool and dev server
-- **Tailwind CSS** - Utility-first CSS framework
-- **shadcn/ui** - Beautiful, accessible UI components
-- **PostCSS** - CSS processing
+- **Frontend**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **UI Components**: shadcn/ui
+- **Styling**: Tailwind CSS
+- **State Management**: React Hooks
+- **Data Persistence**: Local Storage
 
 ## Getting Started
 
@@ -32,32 +29,55 @@ A modern web application for planning and visualizing network subnets, built wit
 
 ### Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd subnet-planning
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd ip-network-planner
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to `http://localhost:5173`
+
+## Usage
+
+1. **Define Base Network**: Set your base IP network (e.g., 10.0.0.0/16)
+2. **Add Network Segments**: Plan individual network segments with custom names and descriptions
+3. **Validate**: Check for conflicts and ensure all network segments fit within the base network
+4. **Visualize**: See a visual representation of your network layout
+5. **Export**: Use your validated configuration in your cloud infrastructure
+
+## Project Structure
+
+```
+ip-network-planner/
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── ui/                    # shadcn/ui components
+ │   │   ├── NetworkPlanner.tsx      # Main IP network planning component
+│   │   └── NetworkVisualization.tsx # Network visualization component
+│   ├── lib/
+ │   │   ├── subnet-utils.ts        # IP network calculation utilities
+│   │   └── presets.ts             # Template configurations
+│   ├── App.tsx                    # Main application component
+│   └── main.tsx                   # Application entry point
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+└── vite.config.ts
 ```
 
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Start the development server:
-```bash
-npm run dev
-```
-
-4. Open your browser and navigate to `http://localhost:5173`
-
-### Usage
-
-1. **Choose a Template**: Start with one of the pre-configured templates for common cloud scenarios
-2. **Configure Base Network**: Set your VPC base network (e.g., 10.0.0.0/16)
-3. **Add Subnets**: Plan individual subnets with custom names and descriptions
-4. **Validate**: Check for conflicts and ensure all subnets fit within the base network
-5. **Visualize**: See a visual representation of your subnet layout
-6. **Export**: Export your configuration for use in cloud infrastructure
+## Development
 
 ### Available Scripts
 
@@ -66,46 +86,12 @@ npm run dev
 - `npm run preview` - Preview production build
 - `npm run lint` - Run ESLint
 
-## Project Structure
+### Key Components
 
-```
-subnet-planning/
-├── src/
-│   ├── components/
-│   │   ├── ui/                    # shadcn/ui components
-│   │   ├── SubnetPlanner.tsx      # Main subnet planning component
-│   │   └── NetworkVisualization.tsx # Network layout visualization
-│   ├── lib/
-│   │   ├── utils.ts               # shadcn/ui utility functions
-│   │   ├── subnet-utils.ts        # Subnet calculation utilities
-│   │   └── presets.ts             # Pre-configured templates
-│   ├── App.tsx                    # Main application component
-│   ├── index.css                  # Global styles with Tailwind
-│   └── main.tsx                   # Application entry point
-├── public/                        # Static assets
-├── tailwind.config.js             # Tailwind CSS configuration
-├── postcss.config.js              # PostCSS configuration
-├── vite.config.ts                 # Vite configuration
-└── tsconfig.json                  # TypeScript configuration
-```
-
-## Development
-
-### Adding shadcn/ui Components
-
-To add new shadcn/ui components:
-
-```bash
-npx shadcn@latest add <component-name>
-```
-
-### Styling
-
-This project uses Tailwind CSS for styling. The design system is configured with CSS custom properties for consistent theming.
-
-### TypeScript
-
-The project is fully configured with TypeScript. All components and utilities are properly typed for better development experience.
+- **NetworkPlanner**: Main component handling IP network planning logic
+- **NetworkVisualization**: Visual representation of network layout
+- **subnet-utils**: Core IP networking calculations and utilities
+- **presets**: Predefined network templates
 
 ## Contributing
 
@@ -117,4 +103,4 @@ The project is fully configured with TypeScript. All components and utilities ar
 
 ## License
 
-This project is open source and available under the [MIT License](LICENSE).
+This project is licensed under the MIT License.
